@@ -1,0 +1,103 @@
+@prefix rml:   <http://semweb.mmlab.be/ns/rml#> .
+@prefix rr:    <http://www.w3.org/ns/r2rml#> .
+@prefix ql:    <http://semweb.mmlab.be/ns/ql#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix sosa:  <http://www.w3.org/ns/sosa/> .
+@prefix dq:    <http://example.org/dq#> .
+@prefix agri:  <http://example.org/agri#> .
+
+# =============================================================================
+# RML Mapping — Vendor A (JSON clair, %, timestamp ISO 8601)
+# =============================================================================
+
+<#VendorAMapping>
+    rml:logicalSource [
+        rml:source "vendor_a_data.json" ;
+        rml:referenceFormulation ql:JSONPath ;
+        rml:iterator "$"
+    ] ;
+
+    rr:subjectMap [
+        rr:template "http://example.org/obs/A/{sensor_id}/{timestamp}" ;
+        rr:class sosa:Observation
+    ] ;
+
+    rr:predicateObjectMap [
+        rr:predicate sosa:resultTime ;
+        rr:objectMap [
+            rml:reference "timestamp" ;
+            rr:datatype xsd:dateTime
+        ]
+    ] ;
+
+    rr:predicateObjectMap [
+        rr:predicate dq:vendorId ;
+        rr:objectMap [
+            rr:constant "A" ;
+            rr:datatype xsd:string
+        ]
+    ] ;
+
+    rr:predicateObjectMap [
+        rr:predicate dq:humidity ;
+        rr:objectMap [
+            rml:reference "humidity_pct" ;
+            rr:datatype xsd:decimal
+        ]
+    ] ;
+
+    rr:predicateObjectMap [
+        rr:predicate dq:moisture ;
+        rr:objectMap [
+            rml:reference "moisture_pct" ;
+            rr:datatype xsd:decimal
+        ]
+    ] ;
+
+    rr:predicateObjectMap [
+        rr:predicate dq:temperature ;
+        rr:objectMap [
+            rml:reference "temperature_c" ;
+            rr:datatype xsd:decimal
+        ]
+    ] ;
+
+    rr:predicateObjectMap [
+        rr:predicate dq:ph ;
+        rr:objectMap [
+            rml:reference "ph_value" ;
+            rr:datatype xsd:decimal
+        ]
+    ] ;
+
+    rr:predicateObjectMap [
+        rr:predicate dq:oxygen ;
+        rr:objectMap [
+            rml:reference "oxygen_mgl" ;
+            rr:datatype xsd:decimal
+        ]
+    ] ;
+
+    rr:predicateObjectMap [
+        rr:predicate dq:ammonia ;
+        rr:objectMap [
+            rml:reference "ammonia_mgl" ;
+            rr:datatype xsd:decimal
+        ]
+    ] ;
+
+    rr:predicateObjectMap [
+        rr:predicate dq:turbidity ;
+        rr:objectMap [
+            rml:reference "turbidity_ntu" ;
+            rr:datatype xsd:decimal
+        ]
+    ] ;
+
+    rr:predicateObjectMap [
+        rr:predicate sosa:madeBySensor ;
+        rr:objectMap [
+            rr:template "http://example.org/sensor/{sensor_id}"
+        ]
+    ] .

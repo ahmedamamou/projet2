@@ -1,0 +1,64 @@
+# =============================================================================
+# Seuils de décision par action agronomique
+# =============================================================================
+
+decision_thresholds:
+  drought:
+    label: "Sécheresse"
+    threshold: 0.65
+    description: "Déclenchement alerte sécheresse si Confiance ≥ 0.65"
+    conditions:
+      moisture: {max: 25.0}
+      humidity: {max: 30.0}
+    action: "alert_drought"
+
+  irrigation:
+    label: "Irrigation"
+    threshold: 0.70
+    description: "Déclenchement irrigation si Confiance ≥ 0.70"
+    conditions:
+      moisture: {max: 30.0}
+      humidity: {max: 40.0}
+    action: "trigger_irrigation"
+
+  fertilization:
+    label: "Fertilisation"
+    threshold: 0.75
+    description: "Déclenchement fertilisation si Confiance ≥ 0.75"
+    conditions:
+      ph: {min: 5.0, max: 6.0}
+      ammonia: {max: 2.0}
+    action: "trigger_fertilization"
+
+  frost:
+    label: "Gel"
+    threshold: 0.80
+    description: "Alerte gel si Confiance ≥ 0.80"
+    conditions:
+      temperature: {max: 2.0}
+    action: "alert_frost"
+
+  ph_alert:
+    label: "Alerte pH"
+    threshold: 0.70
+    description: "Alerte pH anormal si Confiance ≥ 0.70"
+    conditions:
+      ph: {min: 7.5, max: 14.0}
+    action: "alert_ph"
+
+# Paramètres de la fenêtre glissante
+quality_window:
+  size: 100           # nombre d'observations
+  min_observations: 5 # minimum pour calculer la confiance
+
+# Poids du Quality Score Q(o)
+quality_weights:
+  w1: 0.20   # complétude (f1)
+  w2: 0.25   # confiance unité (f2)
+  w3: 0.15   # fraîcheur (f3)
+  w4: 0.25   # plausibilité (f4)
+  w5: 0.15   # fiabilité capteur (f5)
+
+# Paramètre de fraîcheur
+freshness:
+  T_max: 1800  # secondes (30 minutes)

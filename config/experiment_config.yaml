@@ -1,0 +1,104 @@
+# =============================================================================
+# Matrice expérimentale (840+ runs)
+# =============================================================================
+
+experiment:
+  name: "agrisem_eval"
+  description: "Évaluation complète du framework AgriSem"
+  n_runs: 840
+  confidence_interval: 0.95
+  random_seeds: [42, 123, 456, 789, 1337]
+
+# Paramètres variables
+parameters:
+  n_observations: [10, 50, 100, 200, 500, 1000]
+  anomaly_rates: [0.0, 0.05, 0.10, 0.15, 0.20, 0.30, 0.40]
+  vendors: ["A", "B", "C", "D", "mixed"]
+  pipeline_modes: ["full", "no_shacl", "no_unitnorm", "no_quality", "no_repair"]
+
+# Expériences principales
+experiments:
+  - id: "E1"
+    name: "Scalabilité"
+    vary: "n_observations"
+    fixed:
+      anomaly_rate: 0.15
+      vendor: "mixed"
+      mode: "full"
+    metrics: ["latency_e2e", "throughput", "memory_mb"]
+
+  - id: "E2"
+    name: "Robustesse aux anomalies"
+    vary: "anomaly_rates"
+    fixed:
+      n_observations: 200
+      vendor: "mixed"
+      mode: "full"
+    metrics: ["qsr", "f1_anomaly", "repair_rate"]
+
+  - id: "E3"
+    name: "Comparaison baselines"
+    vary: "pipeline_modes"
+    fixed:
+      n_observations: 200
+      anomaly_rate: 0.15
+      vendor: "mixed"
+    metrics: ["qsr", "f1_anomaly", "latency_e2e", "decision_accuracy"]
+    baselines:
+      - "B1_ETL"
+      - "B2_RDF_naive"
+      - "B3_SHACL_no_Q"
+
+  - id: "E4"
+    name: "Ablation study"
+    vary: "pipeline_modes"
+    fixed:
+      n_observations: 200
+      anomaly_rate: 0.15
+      vendor: "mixed"
+    modes:
+      - "full"
+      - "ablation_no_shacl"
+      - "ablation_no_unitnorm"
+      - "ablation_no_quality"
+      - "ablation_no_repair"
+
+  - id: "E5"
+    name: "Hétérogénéité vendors"
+    vary: "vendors"
+    fixed:
+      n_observations: 200
+      anomaly_rate: 0.10
+      mode: "full"
+    metrics: ["qsr", "conversion_errors", "normalization_time"]
+
+# Métriques à collecter
+metrics:
+  qsr:
+    name: "Quality Score Rate"
+    description: "Score qualité moyen Q(o) sur l'ensemble des observations"
+    unit: "[0,1]"
+  f1_anomaly:
+    name: "F1 Anomalie"
+    description: "F1-score de détection d'anomalies (SHACL + repair)"
+    unit: "[0,1]"
+  latency_e2e:
+    name: "Latence End-to-End"
+    description: "Temps de traitement complet du pipeline"
+    unit: "ms"
+  throughput:
+    name: "Débit"
+    description: "Observations traitées par seconde"
+    unit: "obs/s"
+  repair_rate:
+    name: "Taux de réparation"
+    description: "Proportion d'anomalies réparées automatiquement"
+    unit: "[0,1]"
+  decision_accuracy:
+    name: "Précision décision"
+    description: "Taux de décisions correctes par rapport au ground truth"
+    unit: "[0,1]"
+  overhead_pct:
+    name: "Overhead sémantique"
+    description: "Surcoût du pipeline sémantique vs. ETL brut"
+    unit: "%"

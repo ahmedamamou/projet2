@@ -1,0 +1,127 @@
+PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+PREFIX sosa: <http://www.w3.org/ns/sosa/>
+PREFIX dq:   <http://example.org/dq#>
+PREFIX agri: <http://example.org/agri#>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Q1 : Dernières 10 observations avec score qualité
+# ─────────────────────────────────────────────────────────────────────────────
+# SELECT ?obs ?sensor ?ts ?Q ?vendor
+# WHERE {
+#     ?obs rdf:type sosa:Observation ;
+#          sosa:madeBySensor ?sensor ;
+#          sosa:resultTime ?ts ;
+#          dq:hasQualityScore ?Q ;
+#          dq:vendorId ?vendor .
+# }
+# ORDER BY DESC(?ts)
+# LIMIT 10
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Q2 : QSR moyen global
+# ─────────────────────────────────────────────────────────────────────────────
+# SELECT (AVG(?Q) AS ?qsr_mean) (COUNT(?obs) AS ?n_observations)
+# WHERE {
+#     ?obs rdf:type sosa:Observation ;
+#          dq:hasQualityScore ?Q .
+# }
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Q3 : QSR moyen par vendor
+# ─────────────────────────────────────────────────────────────────────────────
+# SELECT ?vendor (AVG(?Q) AS ?qsr_mean) (COUNT(?obs) AS ?n)
+# WHERE {
+#     ?obs rdf:type sosa:Observation ;
+#          dq:hasQualityScore ?Q ;
+#          dq:vendorId ?vendor .
+# }
+# GROUP BY ?vendor
+# ORDER BY DESC(?qsr_mean)
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Q4 : Observations avec qualité inférieure au seuil (Q < 0.7)
+# ─────────────────────────────────────────────────────────────────────────────
+# SELECT ?obs ?ts ?Q ?vendor
+# WHERE {
+#     ?obs rdf:type sosa:Observation ;
+#          sosa:resultTime ?ts ;
+#          dq:hasQualityScore ?Q ;
+#          dq:vendorId ?vendor .
+#     FILTER (?Q < 0.7)
+# }
+# ORDER BY ASC(?Q)
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Q5 : Valeurs de pH hors plage normale [6.5, 7.5]
+# ─────────────────────────────────────────────────────────────────────────────
+# SELECT ?obs ?ts ?ph ?Q
+# WHERE {
+#     ?obs rdf:type sosa:Observation ;
+#          sosa:resultTime ?ts ;
+#          dq:ph ?ph ;
+#          dq:hasQualityScore ?Q .
+#     FILTER (?ph < 6.5 || ?ph > 7.5)
+# }
+# ORDER BY ASC(?ph)
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Q6 : Températures extrêmes (< 5°C ou > 40°C)
+# ─────────────────────────────────────────────────────────────────────────────
+# SELECT ?obs ?ts ?temp ?vendor
+# WHERE {
+#     ?obs rdf:type sosa:Observation ;
+#          sosa:resultTime ?ts ;
+#          dq:temperature ?temp ;
+#          dq:vendorId ?vendor .
+#     FILTER (?temp < 5.0 || ?temp > 40.0)
+# }
+# ORDER BY ASC(?temp)
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Q7 : Observations par capteur avec statistiques
+# ─────────────────────────────────────────────────────────────────────────────
+# SELECT ?sensor (COUNT(?obs) AS ?n) (AVG(?Q) AS ?avg_Q) (MIN(?Q) AS ?min_Q)
+# WHERE {
+#     ?obs rdf:type sosa:Observation ;
+#          sosa:madeBySensor ?sensor ;
+#          dq:hasQualityScore ?Q .
+# }
+# GROUP BY ?sensor
+# ORDER BY DESC(?avg_Q)
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Q8 : Fraîcheur moyenne des observations (f3)
+# ─────────────────────────────────────────────────────────────────────────────
+# SELECT (AVG(?f3) AS ?avg_freshness) (MIN(?f3) AS ?min_freshness)
+# WHERE {
+#     ?obs rdf:type sosa:Observation ;
+#          dq:freshness ?f3 .
+# }
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Q9 : Observations nécessitant une action d'irrigation (moisture < 30%, Q ≥ 0.7)
+# ─────────────────────────────────────────────────────────────────────────────
+# SELECT ?obs ?ts ?moisture ?Q ?vendor
+# WHERE {
+#     ?obs rdf:type sosa:Observation ;
+#          sosa:resultTime ?ts ;
+#          dq:moisture ?moisture ;
+#          dq:hasQualityScore ?Q ;
+#          dq:vendorId ?vendor .
+#     FILTER (?moisture < 30.0 && ?Q >= 0.7)
+# }
+# ORDER BY ASC(?moisture)
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Q10 : Distribution des scores de complétude (f1) par vendor
+# ─────────────────────────────────────────────────────────────────────────────
+# SELECT ?vendor (AVG(?f1) AS ?avg_completeness) (COUNT(?obs) AS ?n)
+# WHERE {
+#     ?obs rdf:type sosa:Observation ;
+#          dq:completeness ?f1 ;
+#          dq:vendorId ?vendor .
+# }
+# GROUP BY ?vendor
+# ORDER BY ?vendor

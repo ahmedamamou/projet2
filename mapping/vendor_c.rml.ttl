@@ -1,0 +1,106 @@
+@prefix rml:   <http://semweb.mmlab.be/ns/rml#> .
+@prefix rr:    <http://www.w3.org/ns/r2rml#> .
+@prefix ql:    <http://semweb.mmlab.be/ns/ql#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix sosa:  <http://www.w3.org/ns/sosa/> .
+@prefix dq:    <http://example.org/dq#> .
+
+# =============================================================================
+# RML Mapping — Vendor C (JSON imbriqué, valeurs permille ‰)
+# Conversions : permille → % : value / 10
+# Structure imbriquée : data.env, data.soil, data.water
+# =============================================================================
+
+<#VendorCEnvMapping>
+    rml:logicalSource [
+        rml:source "vendor_c_data.json" ;
+        rml:referenceFormulation ql:JSONPath ;
+        rml:iterator "$"
+    ] ;
+
+    rr:subjectMap [
+        rr:template "http://example.org/obs/C/{meta.device}/{meta.timestamp}" ;
+        rr:class sosa:Observation
+    ] ;
+
+    rr:predicateObjectMap [
+        rr:predicate dq:vendorId ;
+        rr:objectMap [
+            rr:constant "C" ;
+            rr:datatype xsd:string
+        ]
+    ] ;
+
+    rr:predicateObjectMap [
+        rr:predicate sosa:resultTime ;
+        rr:objectMap [
+            rml:reference "meta.timestamp" ;
+            rr:datatype xsd:dateTime
+        ]
+    ] ;
+
+    rr:predicateObjectMap [
+        rr:predicate sosa:madeBySensor ;
+        rr:objectMap [
+            rr:template "http://example.org/sensor/{meta.device}"
+        ]
+    ] ;
+
+    # Humidité permille → % (via normalizer)
+    rr:predicateObjectMap [
+        rr:predicate dq:humidity_raw ;
+        rr:objectMap [
+            rml:reference "data.env.humidity_pm" ;
+            rr:datatype xsd:decimal
+        ]
+    ] ;
+
+    rr:predicateObjectMap [
+        rr:predicate dq:temperature ;
+        rr:objectMap [
+            rml:reference "data.env.temperature_c" ;
+            rr:datatype xsd:decimal
+        ]
+    ] ;
+
+    # Humidité sol permille → % (via normalizer)
+    rr:predicateObjectMap [
+        rr:predicate dq:moisture_raw ;
+        rr:objectMap [
+            rml:reference "data.soil.moisture_pm" ;
+            rr:datatype xsd:decimal
+        ]
+    ] ;
+
+    rr:predicateObjectMap [
+        rr:predicate dq:ph ;
+        rr:objectMap [
+            rml:reference "data.soil.ph" ;
+            rr:datatype xsd:decimal
+        ]
+    ] ;
+
+    rr:predicateObjectMap [
+        rr:predicate dq:oxygen ;
+        rr:objectMap [
+            rml:reference "data.water.oxygen_mgl" ;
+            rr:datatype xsd:decimal
+        ]
+    ] ;
+
+    rr:predicateObjectMap [
+        rr:predicate dq:ammonia ;
+        rr:objectMap [
+            rml:reference "data.water.ammonia_mgl" ;
+            rr:datatype xsd:decimal
+        ]
+    ] ;
+
+    rr:predicateObjectMap [
+        rr:predicate dq:turbidity ;
+        rr:objectMap [
+            rml:reference "data.water.turbidity_ntu" ;
+            rr:datatype xsd:decimal
+        ]
+    ] .
