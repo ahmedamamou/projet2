@@ -1,0 +1,244 @@
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix sosa:  <http://www.w3.org/ns/sosa/> .
+@prefix ssn:   <http://www.w3.org/ns/ssn/> .
+@prefix dq:    <http://example.org/dq#> .
+@prefix agri:  <http://example.org/agri#> .
+@prefix prov:  <http://www.w3.org/ns/prov#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix qudt:  <http://qudt.org/schema/qudt/> .
+@prefix unit:  <http://qudt.org/vocab/unit/> .
+
+# =============================================================================
+# Ontologie AgriSem — SOSA/SSN + Agriculture + Data Quality
+# =============================================================================
+
+<http://example.org/agrisem>
+    a owl:Ontology ;
+    rdfs:label "AgriSem Ontology"@fr ;
+    dcterms:description "Ontologie pour la médiation sémantique IoT agricole"@fr ;
+    dcterms:creator "AgriSem Framework" ;
+    owl:versionInfo "1.0.0" .
+
+# =============================================================================
+# Classes SOSA/SSN réutilisées
+# =============================================================================
+
+sosa:Observation a owl:Class ;
+    rdfs:label "Observation"@fr .
+
+sosa:Sensor a owl:Class ;
+    rdfs:label "Capteur"@fr .
+
+sosa:ObservableProperty a owl:Class ;
+    rdfs:label "Propriété observable"@fr .
+
+sosa:FeatureOfInterest a owl:Class ;
+    rdfs:label "Entité d'intérêt"@fr .
+
+sosa:Result a owl:Class ;
+    rdfs:label "Résultat"@fr .
+
+# =============================================================================
+# Classes Agriculture
+# =============================================================================
+
+agri:AgricultureSensor a owl:Class ;
+    rdfs:subClassOf sosa:Sensor ;
+    rdfs:label "Capteur agricole"@fr ;
+    rdfs:comment "Capteur IoT déployé dans un environnement agricole"@fr .
+
+agri:SkyMote a owl:Class ;
+    rdfs:subClassOf agri:AgricultureSensor ;
+    rdfs:label "Sky Mote Contiki"@fr ;
+    rdfs:comment "Nœud capteur Sky Mote simulé dans Cooja"@fr .
+
+agri:Field a owl:Class ;
+    rdfs:subClassOf sosa:FeatureOfInterest ;
+    rdfs:label "Parcelle agricole"@fr .
+
+agri:SoilProperty a owl:Class ;
+    rdfs:subClassOf sosa:ObservableProperty ;
+    rdfs:label "Propriété du sol"@fr .
+
+agri:WaterProperty a owl:Class ;
+    rdfs:subClassOf sosa:ObservableProperty ;
+    rdfs:label "Propriété de l'eau"@fr .
+
+agri:AtmosphericProperty a owl:Class ;
+    rdfs:subClassOf sosa:ObservableProperty ;
+    rdfs:label "Propriété atmosphérique"@fr .
+
+agri:PHMeasurement a owl:Class ;
+    rdfs:subClassOf agri:SoilProperty ;
+    rdfs:label "Mesure pH"@fr .
+
+agri:TemperatureMeasurement a owl:Class ;
+    rdfs:subClassOf agri:AtmosphericProperty ;
+    rdfs:label "Mesure température"@fr .
+
+agri:HumidityMeasurement a owl:Class ;
+    rdfs:subClassOf agri:AtmosphericProperty ;
+    rdfs:label "Mesure humidité"@fr .
+
+agri:MoistureMeasurement a owl:Class ;
+    rdfs:subClassOf agri:SoilProperty ;
+    rdfs:label "Mesure humidité sol"@fr .
+
+agri:OxygenMeasurement a owl:Class ;
+    rdfs:subClassOf agri:WaterProperty ;
+    rdfs:label "Mesure oxygène dissous"@fr .
+
+agri:AmmoniaMeasurement a owl:Class ;
+    rdfs:subClassOf agri:WaterProperty ;
+    rdfs:label "Mesure ammoniaque"@fr .
+
+agri:TurbidityMeasurement a owl:Class ;
+    rdfs:subClassOf agri:WaterProperty ;
+    rdfs:label "Mesure turbidité"@fr .
+
+# =============================================================================
+# Classes Data Quality
+# =============================================================================
+
+dq:QualityAnnotation a owl:Class ;
+    rdfs:label "Annotation de qualité"@fr ;
+    rdfs:comment "Annotation de qualité associée à une observation"@fr .
+
+dq:QualityScore a owl:Class ;
+    rdfs:subClassOf dq:QualityAnnotation ;
+    rdfs:label "Score de qualité Q(o)"@fr .
+
+dq:AnomalyFlag a owl:Class ;
+    rdfs:subClassOf dq:QualityAnnotation ;
+    rdfs:label "Indicateur d'anomalie"@fr .
+
+dq:ValidationReport a owl:Class ;
+    rdfs:label "Rapport de validation SHACL"@fr .
+
+dq:VendorProfile a owl:Class ;
+    rdfs:label "Profil vendor"@fr .
+
+dq:ProvenanceRecord a owl:Class ;
+    rdfs:subClassOf prov:Entity ;
+    rdfs:label "Enregistrement de provenance"@fr .
+
+# =============================================================================
+# Propriétés Data Quality
+# =============================================================================
+
+dq:hasQualityScore a owl:DatatypeProperty ;
+    rdfs:domain sosa:Observation ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "score qualité global Q(o)"@fr .
+
+dq:completeness a owl:DatatypeProperty ;
+    rdfs:domain dq:QualityScore ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "f1 - complétude"@fr .
+
+dq:unitConfidence a owl:DatatypeProperty ;
+    rdfs:domain dq:QualityScore ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "f2 - confiance unité"@fr .
+
+dq:freshness a owl:DatatypeProperty ;
+    rdfs:domain dq:QualityScore ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "f3 - fraîcheur"@fr .
+
+dq:plausibility a owl:DatatypeProperty ;
+    rdfs:domain dq:QualityScore ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "f4 - plausibilité"@fr .
+
+dq:reliability a owl:DatatypeProperty ;
+    rdfs:domain dq:QualityScore ;
+    rdfs:range xsd:decimal ;
+    rdfs:label "f5 - fiabilité capteur"@fr .
+
+dq:hasAnomaly a owl:ObjectProperty ;
+    rdfs:domain sosa:Observation ;
+    rdfs:range dq:AnomalyFlag ;
+    rdfs:label "a une anomalie"@fr .
+
+dq:anomalyType a owl:DatatypeProperty ;
+    rdfs:domain dq:AnomalyFlag ;
+    rdfs:range xsd:string ;
+    rdfs:label "type d'anomalie"@fr .
+
+dq:repaired a owl:DatatypeProperty ;
+    rdfs:domain dq:AnomalyFlag ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "réparée"@fr .
+
+dq:vendorId a owl:DatatypeProperty ;
+    rdfs:domain sosa:Observation ;
+    rdfs:range xsd:string ;
+    rdfs:label "identifiant vendor"@fr .
+
+dq:originalValue a owl:DatatypeProperty ;
+    rdfs:domain dq:ProvenanceRecord ;
+    rdfs:range xsd:string ;
+    rdfs:label "valeur originale"@fr .
+
+dq:conversionApplied a owl:DatatypeProperty ;
+    rdfs:domain dq:ProvenanceRecord ;
+    rdfs:range xsd:string ;
+    rdfs:label "conversion appliquée"@fr .
+
+# =============================================================================
+# Propriétés SOSA réutilisées
+# =============================================================================
+
+sosa:hasSimpleResult a owl:DatatypeProperty ;
+    rdfs:domain sosa:Observation ;
+    rdfs:label "résultat simple"@fr .
+
+sosa:resultTime a owl:DatatypeProperty ;
+    rdfs:domain sosa:Observation ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "temps du résultat"@fr .
+
+sosa:madeBySensor a owl:ObjectProperty ;
+    rdfs:domain sosa:Observation ;
+    rdfs:range sosa:Sensor ;
+    rdfs:label "effectuée par capteur"@fr .
+
+sosa:observedProperty a owl:ObjectProperty ;
+    rdfs:domain sosa:Observation ;
+    rdfs:range sosa:ObservableProperty ;
+    rdfs:label "propriété observée"@fr .
+
+sosa:hasFeatureOfInterest a owl:ObjectProperty ;
+    rdfs:domain sosa:Observation ;
+    rdfs:range sosa:FeatureOfInterest ;
+    rdfs:label "entité d'intérêt"@fr .
+
+# =============================================================================
+# Instances : propriétés observées agricoles
+# =============================================================================
+
+agri:ph a agri:PHMeasurement ;
+    rdfs:label "pH du sol"@fr ;
+    rdfs:comment "Acidité/basicité du sol, plage 0-14"@fr .
+
+agri:temperature a agri:TemperatureMeasurement ;
+    rdfs:label "Température ambiante"@fr .
+
+agri:humidity a agri:HumidityMeasurement ;
+    rdfs:label "Humidité relative de l'air (%)"@fr .
+
+agri:moisture a agri:MoistureMeasurement ;
+    rdfs:label "Humidité du sol (%)"@fr .
+
+agri:oxygen a agri:OxygenMeasurement ;
+    rdfs:label "Oxygène dissous (mg/L)"@fr .
+
+agri:ammonia a agri:AmmoniaMeasurement ;
+    rdfs:label "Ammoniaque (mg/L)"@fr .
+
+agri:turbidity a agri:TurbidityMeasurement ;
+    rdfs:label "Turbidité (NTU)"@fr .

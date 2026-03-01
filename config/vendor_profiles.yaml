@@ -1,0 +1,143 @@
+# =============================================================================
+# Profils des 4 vendors IoT hétérogènes
+# =============================================================================
+
+vendors:
+  A:
+    name: "VendorAlpha"
+    description: "JSON clair, unités en %, timestamp ISO 8601"
+    format: "json_clear"
+    timestamp_format: "iso8601"
+    units:
+      humidity: "%"
+      moisture: "%"
+      temperature: "celsius"
+      ph: "ph"
+      oxygen: "mg/L"
+      ammonia: "mg/L"
+      turbidity: "NTU"
+    field_mapping:
+      humidity: "humidity_pct"
+      moisture: "moisture_pct"
+      temperature: "temperature_c"
+      ph: "ph_value"
+      oxygen: "oxygen_mgl"
+      ammonia: "ammonia_mgl"
+      turbidity: "turbidity_ntu"
+    sample:
+      humidity_pct: 55.0
+      moisture_pct: 35.0
+      temperature_c: 25.0
+      ph_value: 7.0
+      oxygen_mgl: 8.0
+      ammonia_mgl: 5.0
+      turbidity_ntu: 30.0
+      timestamp: "2024-01-01T12:00:00Z"
+      sensor_id: "node_2"
+
+  B:
+    name: "VendorBeta"
+    description: "Epoch timestamp, valeurs fraction 0-1, température °F"
+    format: "epoch_fraction"
+    timestamp_format: "epoch_ms"
+    units:
+      humidity: "fraction"
+      moisture: "fraction"
+      temperature: "fahrenheit"
+      ph: "ph"
+      oxygen: "mg/L"
+      ammonia: "mg/L"
+      turbidity: "NTU"
+    field_mapping:
+      humidity: "hum"
+      moisture: "moi"
+      temperature: "temp_f"
+      ph: "ph"
+      oxygen: "oxy"
+      ammonia: "amm"
+      turbidity: "turb"
+    conversions:
+      fraction_to_percent: "value * 100"
+      fahrenheit_to_celsius: "(value - 32) * 5 / 9"
+      epoch_ms_to_iso: "datetime.utcfromtimestamp(value/1000).isoformat() + 'Z'"
+    sample:
+      hum: 0.55
+      moi: 0.35
+      temp_f: 77.0
+      ph: 7.0
+      oxy: 8.0
+      amm: 5.0
+      turb: 30.0
+      ts: 1704067200000
+      node: "node_3"
+
+  C:
+    name: "VendorGamma"
+    description: "JSON imbriqué, valeurs permille (‰)"
+    format: "nested_permille"
+    timestamp_format: "iso8601"
+    units:
+      humidity: "permille"
+      moisture: "permille"
+      temperature: "celsius"
+      ph: "ph"
+      oxygen: "mg/L"
+      ammonia: "mg/L"
+      turbidity: "NTU"
+    field_mapping:
+      humidity: "data.env.humidity_pm"
+      moisture: "data.soil.moisture_pm"
+      temperature: "data.env.temperature_c"
+      ph: "data.soil.ph"
+      oxygen: "data.water.oxygen_mgl"
+      ammonia: "data.water.ammonia_mgl"
+      turbidity: "data.water.turbidity_ntu"
+    conversions:
+      permille_to_percent: "value / 10"
+    sample:
+      data:
+        env:
+          humidity_pm: 550.0
+          temperature_c: 25.0
+        soil:
+          moisture_pm: 350.0
+          ph: 7.0
+        water:
+          oxygen_mgl: 8.0
+          ammonia_mgl: 5.0
+          turbidity_ntu: 30.0
+      meta:
+        timestamp: "2024-01-01T12:00:00Z"
+        device: "node_4"
+
+  D:
+    name: "VendorDelta"
+    description: "Format compact minimal, clés courtes, entiers"
+    format: "compact_integer"
+    timestamp_format: "epoch_s"
+    units:
+      humidity: "%"
+      moisture: "%"
+      temperature: "celsius"
+      ph: "ph"
+      oxygen: "mg/L"
+      ammonia: "mg/L"
+      turbidity: "NTU"
+    field_mapping:
+      humidity: "h"
+      moisture: "m"
+      temperature: "t"
+      ph: "p"
+      oxygen: "o"
+      ammonia: "a"
+      turbidity: "tb"
+    sample:
+      h: 55
+      m: 35
+      t: 25
+      p: 7
+      o: 8
+      a: 5
+      tb: 30
+      ts: 1704067200
+      id: "n5"

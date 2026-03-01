@@ -1,0 +1,76 @@
+# =============================================================================
+# Configuration des anomalies injectables
+# =============================================================================
+
+anomaly_rate: 0.15  # taux global par défaut (15%)
+
+anomaly_types:
+  unit_error:
+    description: "Erreur d'unité — valeur dans mauvaise unité"
+    probability: 0.25
+    fields: ["temperature", "humidity", "moisture"]
+    transforms:
+      temperature: "value * 1.8 + 32"   # °C → °F non converti
+      humidity: "value / 100"             # % → fraction non convertie
+      moisture: "value * 10"              # % → permille non converti
+
+  out_of_range:
+    description: "Valeur hors plage valide"
+    probability: 0.30
+    fields: ["ph", "humidity", "temperature", "oxygen"]
+    mutations:
+      ph: {"type": "multiply", "factor": 2.5}       # > 14
+      humidity: {"type": "add", "value": 60}         # > 100
+      temperature: {"type": "add", "value": 80}      # > 60°C
+      oxygen: {"type": "multiply", "factor": 3}      # > 20 mg/L
+
+  timestamp_anomaly:
+    description: "Anomalie temporelle (futur ou très ancien)"
+    probability: 0.15
+    mutations:
+      future: {"offset_seconds": 86400}    # +24h dans le futur
+      past: {"offset_seconds": -2592000}   # -30j dans le passé
+
+  missing_field:
+    description: "Champ obligatoire manquant"
+    probability: 0.20
+    fields: ["temperature", "humidity", "ph", "oxygen"]
+    strategy: "drop_field"
+
+  stuck_at:
+    description: "Capteur bloqué — même valeur répétée"
+    probability: 0.10
+    window: 5          # nombre de répétitions consécutives
+    fields: ["temperature", "humidity", "ph"]
+    tolerance: 0.001   # variation maximale tolérée
+
+# Seuils de plausibilité pour détection automatique
+plausibility_checks:
+  temperature:
+    min: -40.0
+    max: 60.0
+    unit: "°C"
+  humidity:
+    min: 0.0
+    max: 100.0
+    unit: "%"
+  moisture:
+    min: 0.0
+    max: 100.0
+    unit: "%"
+  ph:
+    min: 0.0
+    max: 14.0
+    unit: "pH"
+  oxygen:
+    min: 0.0
+    max: 20.0
+    unit: "mg/L"
+  ammonia:
+    min: 0.0
+    max: 10.0
+    unit: "mg/L"
+  turbidity:
+    min: 0.0
+    max: 500.0
+    unit: "NTU"
