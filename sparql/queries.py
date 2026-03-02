@@ -32,6 +32,7 @@ ORDER BY DESC(?latest_ts)
 """
 
 # Q2: Average moisture (last hour) for a plot
+# Note: FILTER with NOW() - duration arithmetic requires SPARQL 1.1 compliant endpoint
 Q2_AVG_MOISTURE_LAST_HOUR = """
 SELECT ?plot (AVG(?moisture) AS ?avg_moisture) (COUNT(?obs) AS ?n) WHERE {
     ?obs rdf:type sosa:Observation ;

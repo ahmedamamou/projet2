@@ -76,6 +76,15 @@ def _add_measurement(g: Graph, obs_uri: URIRef, result_uri: URIRef,
     g.add((result_uri, QUDT.unit, unit_uri))
 
 
+def _get_field_with_suffixes(payload: dict, field: str, suffixes: list):
+    """Helper: look up a field trying multiple unit suffixes, then the bare field name."""
+    for suffix in suffixes:
+        val = payload.get(field + suffix)
+        if val is not None:
+            return val
+    return payload.get(field)
+
+
 def vendor_a_to_rdf(payload: dict) -> Graph:
     """
     Vendor A — Clean JSON format:
@@ -126,8 +135,7 @@ def vendor_a_to_rdf(payload: dict) -> Graph:
     # Legacy fields
     for field, pred in [("humidity", DQ.humidity), ("oxygen", DQ.oxygen),
                          ("ammonia", DQ.ammonia), ("turbidity", DQ.turbidity)]:
-        val = payload.get(field + "_pct", payload.get(field + "_mgl",
-              payload.get(field + "_ntu", payload.get(field))))
+        val = _get_field_with_suffixes(payload, field, ["_pct", "_mgl", "_ntu"])
         if val is not None:
             g.add((obs_uri, pred, Literal(float(val), datatype=XSD.decimal)))
 
@@ -173,7 +181,9 @@ def vendor_b_to_rdf(payload: dict) -> Graph:
         g.add((result_uri, QUDT.unit, UNIT.PERCENT))
         g.add((obs_uri, DQ.soilMoisture, Literal(sm_pct, datatype=XSD.decimal)))
 
-    # Temperature (may be in °F)
+    # Temperature (may be in °F — only converts when explicit temp_f key is present)
+    # Note: value-based heuristic (> 60) is only applied when the key is "temp_f"
+    # to avoid misclassifying valid high °C readings from other fields.
     temp = payload.get("temperature", payload.get("temp_f", payload.get("temp_c")))
     if temp is not None:
         temp_val = float(temp)

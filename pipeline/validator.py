@@ -72,10 +72,13 @@ def _sigmoid_boundary(value: float, low: float, high: float) -> float:
     return 1.0 / (1.0 + math.exp(5 * (normalized - 0.8)))
 
 
-def _observation_to_rdf(observation: dict) -> Graph:
+def _observation_to_rdf(observation: dict) -> tuple:
     """
     Convert a normalized observation dict to an rdflib Graph
     with proper SOSA/SSN triples for SHACL validation.
+
+    Returns:
+        (Graph, obs_uri) tuple
     """
     g = Graph()
     g.bind("sosa", SOSA)
@@ -224,7 +227,7 @@ def _parse_shacl_report(report_graph: Graph, obs_uri) -> ValidationReport:
     return report
 
 
-def validate(observation: dict) -> tuple:
+def validate(observation: dict) -> "tuple[ValidationReport, float, float]":
     """
     Validate a normalized observation against 15 SHACL shapes using real pyshacl.
 

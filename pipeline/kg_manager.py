@@ -84,7 +84,7 @@ def reset_in_memory_graph() -> None:
     _in_memory_graph = None
 
 
-def observation_to_rdf_graph(observation: dict) -> Optional[Graph]:
+def observation_to_rdf_graph(observation: dict) -> "Optional[tuple]":
     """
     Convert a normalized observation dict to an rdflib Graph with SOSA/SSN triples.
     
