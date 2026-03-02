@@ -181,15 +181,12 @@ def vendor_b_to_rdf(payload: dict) -> Graph:
         g.add((result_uri, QUDT.unit, UNIT.PERCENT))
         g.add((obs_uri, DQ.soilMoisture, Literal(sm_pct, datatype=XSD.decimal)))
 
-    # Temperature (may be in °F — only converts when explicit temp_f key is present)
-    # Note: value-based heuristic (> 60) is only applied when the key is "temp_f"
-    # to avoid misclassifying valid high °C readings from other fields.
-    temp = payload.get("temperature", payload.get("temp_f", payload.get("temp_c")))
-    if temp is not None:
-        temp_val = float(temp)
-        # Heuristic: if > 60, likely Fahrenheit
-        if temp_val > 60 and "temp_f" in payload:
-            temp_val = (temp_val - 32) * 5 / 9
+    # Temperature: convert Fahrenheit to Celsius only when "temp_f" key is explicitly present
+    if "temp_f" in payload:
+        temp_val = (float(payload["temp_f"]) - 32) * 5 / 9
+        g.add((obs_uri, DQ.airTemperature, Literal(temp_val, datatype=XSD.decimal)))
+    elif "temp_c" in payload or "temperature" in payload:
+        temp_val = float(payload.get("temp_c", payload.get("temperature")))
         g.add((obs_uri, DQ.airTemperature, Literal(temp_val, datatype=XSD.decimal)))
 
     # pH

@@ -78,7 +78,9 @@ def generate_base_reading(
     if timestamp is None:
         timestamp = datetime.now(timezone.utc)
     if plot_id is None:
-        plot_id = PLOTS[hash(node_id) % len(PLOTS)]
+        # Use deterministic digit-based assignment instead of Python's hash()
+        digits = ''.join(filter(str.isdigit, node_id)) or "0"
+        plot_id = PLOTS[int(digits[-1]) % len(PLOTS)]
 
     return {
         "soilMoisture":   _rand_value("soilMoisture", rng),
