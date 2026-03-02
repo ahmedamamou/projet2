@@ -1,0 +1,12 @@
+PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX sosa: <http://www.w3.org/ns/sosa/>
+PREFIX dq:   <http://example.org/dq#>
+
+SELECT ?obs ?ts ?vendor ?quality WHERE {
+    ?obs rdf:type sosa:Observation ;
+         sosa:resultTime ?ts ;
+         dq:anomalyFlag true .
+    OPTIONAL { ?obs dq:vendorId ?vendor }
+    OPTIONAL { ?obs dq:qualityScore ?quality }
+}
+ORDER BY DESC(?ts)

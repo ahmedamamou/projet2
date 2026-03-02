@@ -1,10 +1,9 @@
 """
 pipeline/vendor_router.py
-Transforme les données uniformes en 4 formats vendor hétérogènes.
-Simule l'hétérogénéité des capteurs IoT réels.
+Routes sensor data to 4 vendor-specific formats as defined in the article (section 9).
+Vendor A: Clean JSON | Vendor B: Epoch+fraction | Vendor C: Nested+permille | Vendor D: Compact
 """
 
-import math
 import time
 import logging
 from datetime import datetime, timezone
@@ -14,116 +13,114 @@ logger = logging.getLogger(__name__)
 
 def route_to_vendor_a(data: dict) -> dict:
     """
-    Vendor A : JSON clair, unités en %, timestamp ISO 8601.
+    Vendor A — Clean JSON (article spec):
+    {"deviceId": "sm-01", "ts": "2026-02-28T10:15:00Z", "soilMoisture": 23.4, "unit": "%", "plot": "P1"}
     """
     return {
-        "humidity_pct": float(data.get("humidity", 55.0)),
-        "moisture_pct": float(data.get("moisture", 35.0)),
-        "temperature_c": float(data.get("temperature", 25.0)),
-        "ph_value": float(data.get("ph", 7.0)),
-        "oxygen_mgl": float(data.get("oxygen", 8.0)),
-        "ammonia_mgl": float(data.get("ammonia", 5.0)),
-        "turbidity_ntu": float(data.get("turbidity", 30.0)),
-        "timestamp": data.get("timestamp", datetime.now(timezone.utc).isoformat()),
-        "sensor_id": data.get("node_id", "node_2"),
-        "_vendor": "A",
+        "deviceId":     data.get("node_id", "sm-01"),
+        "ts":           data.get("timestamp", datetime.now(timezone.utc).isoformat()),
+        "soilMoisture": float(data.get("soilMoisture", data.get("moisture", 35.0))),
+        "airTemperature": float(data.get("airTemperature", data.get("temperature", 22.0))),
+        "soilPH":       float(data.get("soilPH", data.get("ph", 6.8))),
+        "batteryLevel": float(data.get("batteryLevel", 75.0)),
+        "unit":         "%",
+        "plot":         data.get("plot", "P1"),
+        "_vendor":      "A",
     }
 
 
 def route_to_vendor_b(data: dict) -> dict:
     """
-    Vendor B : epoch timestamp ms, fraction 0-1, température °F.
+    Vendor B — Epoch + fraction (article spec):
+    {"id": "node7", "time": 1772273700, "sm": 0.234, "sm_unit": "vwc", "field": "plot-1"}
     """
     ts = data.get("timestamp", datetime.now(timezone.utc).isoformat())
-    if isinstance(ts, str):
-        try:
-            dt = datetime.fromisoformat(ts.replace("Z", "+00:00"))
-            epoch_ms = int(dt.timestamp() * 1000)
-        except ValueError:
-            epoch_ms = int(time.time() * 1000)
-    else:
-        epoch_ms = int(ts)
+    try:
+        dt = datetime.fromisoformat(str(ts).replace("Z", "+00:00"))
+        epoch = int(dt.timestamp())
+    except ValueError:
+        epoch = int(time.time())
 
-    temp_c = float(data.get("temperature", 25.0))
-    temp_f = temp_c * 9 / 5 + 32
+    moisture = float(data.get("soilMoisture", data.get("moisture", 35.0)))
+    plot_id = data.get("plot", "P1")
+    plot_num = plot_id.replace("P", "") if isinstance(plot_id, str) else "1"
 
     return {
-        "hum": round(float(data.get("humidity", 55.0)) / 100, 4),
-        "moi": round(float(data.get("moisture", 35.0)) / 100, 4),
-        "temp_f": round(temp_f, 2),
-        "ph": float(data.get("ph", 7.0)),
-        "oxy": float(data.get("oxygen", 8.0)),
-        "amm": float(data.get("ammonia", 5.0)),
-        "turb": float(data.get("turbidity", 30.0)),
-        "ts": epoch_ms,
-        "node": data.get("node_id", "node_3"),
+        "id":      data.get("node_id", "node7"),
+        "time":    epoch,
+        "sm":      round(moisture / 100.0, 4),   # fraction VWC
+        "sm_unit": "vwc",
+        "field":   f"plot-{plot_num}",
+        "temp_c":  float(data.get("airTemperature", data.get("temperature", 22.0))),
+        "ph":      float(data.get("soilPH", data.get("ph", 6.8))),
+        "battery": float(data.get("batteryLevel", 75.0)),
         "_vendor": "B",
     }
 
 
 def route_to_vendor_c(data: dict) -> dict:
     """
-    Vendor C : JSON imbriqué, valeurs en permille (‰).
+    Vendor C — Nested + permille (article spec):
+    {"meta": {"dev": "A9", "plot": "P1"}, "obs": {"t": "2026-02-28 10:15:00", "val": 234},
+     "type": "SOIL_MOIST", "scale": "permille"}
     """
+    ts = data.get("timestamp", datetime.now(timezone.utc).isoformat())
+    ts_fmt = str(ts).replace("T", " ").replace("+00:00", "").replace("Z", "")
+
+    moisture = float(data.get("soilMoisture", data.get("moisture", 35.0)))
     return {
-        "data": {
-            "env": {
-                "humidity_pm": round(float(data.get("humidity", 55.0)) * 10, 1),
-                "temperature_c": float(data.get("temperature", 25.0)),
-            },
-            "soil": {
-                "moisture_pm": round(float(data.get("moisture", 35.0)) * 10, 1),
-                "ph": float(data.get("ph", 7.0)),
-            },
-            "water": {
-                "oxygen_mgl": float(data.get("oxygen", 8.0)),
-                "ammonia_mgl": float(data.get("ammonia", 5.0)),
-                "turbidity_ntu": float(data.get("turbidity", 30.0)),
-            },
-        },
         "meta": {
-            "timestamp": data.get("timestamp", datetime.now(timezone.utc).isoformat()),
-            "device": data.get("node_id", "node_4"),
+            "dev":  data.get("node_id", "A9"),
+            "plot": data.get("plot", "P1"),
         },
+        "obs": {
+            "t":   ts_fmt,
+            "val": int(moisture * 10),   # permille
+        },
+        "type":   "SOIL_MOIST",
+        "scale":  "permille",
+        "airTemperature": float(data.get("airTemperature", data.get("temperature", 22.0))),
+        "soilPH": float(data.get("soilPH", data.get("ph", 6.8))),
         "_vendor": "C",
     }
 
 
 def route_to_vendor_d(data: dict) -> dict:
     """
-    Vendor D : format compact minimal, clés courtes, entiers.
+    Vendor D — Compact (article spec):
+    {"d": "19", "t": 1772273700, "m": 23, "k": "SM"}
     """
     ts = data.get("timestamp", datetime.now(timezone.utc).isoformat())
-    if isinstance(ts, str):
-        try:
-            dt = datetime.fromisoformat(ts.replace("Z", "+00:00"))
-            epoch_s = int(dt.timestamp())
-        except ValueError:
-            epoch_s = int(time.time())
-    else:
-        epoch_s = int(ts)
+    try:
+        dt = datetime.fromisoformat(str(ts).replace("Z", "+00:00"))
+        epoch = int(dt.timestamp())
+    except ValueError:
+        epoch = int(time.time())
+
+    moisture = float(data.get("soilMoisture", data.get("moisture", 35.0)))
+    ph = float(data.get("soilPH", data.get("ph", 6.8)))
 
     return {
-        "h": int(round(float(data.get("humidity", 55.0)))),
-        "m": int(round(float(data.get("moisture", 35.0)))),
-        "t": int(round(float(data.get("temperature", 25.0)))),
-        "p": int(round(float(data.get("ph", 7.0)))),
-        "o": int(round(float(data.get("oxygen", 8.0)))),
-        "a": int(round(float(data.get("ammonia", 5.0)))),
-        "tb": int(round(float(data.get("turbidity", 30.0)))),
-        "ts": epoch_s,
-        "id": data.get("node_id", "n5"),
+        "d":       data.get("node_id", "19"),
+        "t":       epoch,
+        "m":       int(round(moisture)),
+        "k":       "SM",
+        "temp":    int(round(float(data.get("airTemperature", data.get("temperature", 22.0))))),
+        "ph_x10":  int(round(ph * 10)),
+        "batt":    int(round(float(data.get("batteryLevel", 75.0)))),
         "_vendor": "D",
     }
 
 
-# Mapping nœud → fonction vendor
 NODE_ROUTER = {
-    "node_2": route_to_vendor_a,
-    "node_3": route_to_vendor_b,
-    "node_4": route_to_vendor_c,
-    "node_5": route_to_vendor_d,
-    "node_6": route_to_vendor_a,
+    "node_1": route_to_vendor_b,
+    "node_2": route_to_vendor_c,
+    "node_3": route_to_vendor_d,
+    "node_4": route_to_vendor_a,
+    "node_5": route_to_vendor_b,
+    "node_6": route_to_vendor_c,
+    "node_7": route_to_vendor_d,
+    "node_8": route_to_vendor_a,
 }
 
 VENDOR_ROUTER = {
@@ -135,11 +132,9 @@ VENDOR_ROUTER = {
 
 
 def route(data: dict) -> dict:
-    """
-    Route les données vers le format vendor approprié selon le node_id ou vendor.
-    """
-    node_id = data.get("node_id", "node_2")
-    vendor = data.get("vendor", "A")
+    """Route data to the appropriate vendor format."""
+    node_id = data.get("node_id", "node_4")
+    vendor = data.get("vendor", data.get("_vendor", "A"))
 
     router_fn = NODE_ROUTER.get(node_id) or VENDOR_ROUTER.get(vendor, route_to_vendor_a)
     routed = router_fn(data)
