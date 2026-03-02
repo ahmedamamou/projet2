@@ -62,7 +62,7 @@ def baseline_b2_rdf_naive(observations: list) -> tuple:
     B2 — Naive RDF: RML lifting → RDF graph, NO SHACL validation,
     NO normalization, NO quality scoring. Direct SPARQL queries.
     """
-    from mapping.rml_runner import run_rml_mapping, merge_graphs
+    from mapping.rml_runner import run_rml_mapping
 
     t0 = time.perf_counter()
     result = []

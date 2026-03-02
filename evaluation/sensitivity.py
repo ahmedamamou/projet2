@@ -123,7 +123,7 @@ def analyze_robustness(sensitivity_results: list) -> dict:
     def cv(values):
         arr = np.array(values)
         mean = arr.mean()
-        return float(arr.std() / mean) if mean > 0 else 0.0
+        return float(arr.std() / mean) if mean > 1e-9 else 0.0
 
     return {
         "qsr_cv":    round(cv(qsr_values), 4),
