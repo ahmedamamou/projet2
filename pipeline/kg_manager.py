@@ -5,6 +5,7 @@ Supports SOSA/SSN-compliant RDF observations with quality score materialization.
 """
 
 import logging
+import os
 import uuid
 from datetime import datetime, timezone
 from typing import Optional
@@ -42,7 +43,7 @@ QUDT = Namespace("http://qudt.org/schema/qudt/")
 UNIT = Namespace("http://qudt.org/vocab/unit/")
 PROV = Namespace("http://www.w3.org/ns/prov#")
 
-FUSEKI_BASE_URL = "http://localhost:3030"
+FUSEKI_BASE_URL = os.environ.get("FUSEKI_URL", "http://localhost:3030")
 DATASET = "agrisem"
 FUSEKI_AUTH = ("admin", "admin")
 
