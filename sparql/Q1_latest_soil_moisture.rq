@@ -1,0 +1,13 @@
+PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX sosa: <http://www.w3.org/ns/sosa/>
+PREFIX dq:   <http://example.org/dq#>
+PREFIX agri: <http://example.org/agri#>
+
+SELECT ?plot (MAX(?ts) AS ?latest_ts) ?moisture WHERE {
+    ?obs rdf:type sosa:Observation ;
+         sosa:hasFeatureOfInterest ?plot ;
+         sosa:resultTime ?ts ;
+         dq:soilMoisture ?moisture .
+}
+GROUP BY ?plot ?moisture
+ORDER BY DESC(?latest_ts)

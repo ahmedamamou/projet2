@@ -5,224 +5,155 @@
 @prefix sosa:  <http://www.w3.org/ns/sosa/> .
 @prefix dq:    <http://example.org/dq#> .
 @prefix agri:  <http://example.org/agri#> .
+@prefix qudt:  <http://qudt.org/schema/qudt/> .
+@prefix unit:  <http://qudt.org/vocab/unit/> .
 @prefix shapes: <http://example.org/shapes#> .
 
 # =============================================================================
-# SHACL Shapes — 15 contraintes de validation
-# 10 basiques + 5 avancées
+# SHACL Shapes — 10 contraintes de base
+# Correspondance avec l'article : sections 11 (Shapes 1-10)
 # =============================================================================
 
 # ─────────────────────────────────────────────────────────────────────────────
-# SHAPE 1 : Structure de l'observation (champs obligatoires)
+# SHAPE 1 : Structure de l'observation BaseObservation
 # ─────────────────────────────────────────────────────────────────────────────
 shapes:ObservationStructure a sh:NodeShape ;
     sh:targetClass sosa:Observation ;
-    rdfs:label "Structure d'observation"@fr ;
+    rdfs:label "BaseObservation structure"@en ;
     sh:property [
         sh:path sosa:resultTime ;
         sh:minCount 1 ;
-        sh:message "Une observation doit avoir un timestamp (resultTime)"@fr
+        sh:message "An observation must have a resultTime timestamp"@en
     ] ;
     sh:property [
         sh:path sosa:madeBySensor ;
         sh:minCount 1 ;
-        sh:message "Une observation doit référencer son capteur"@fr
+        sh:message "An observation must reference its sensor"@en
     ] ;
     sh:property [
         sh:path sosa:observedProperty ;
         sh:minCount 1 ;
-        sh:message "Une observation doit spécifier la propriété observée"@fr
-    ] .
-
-# ─────────────────────────────────────────────────────────────────────────────
-# SHAPE 2 : Valeur du résultat présente
-# ─────────────────────────────────────────────────────────────────────────────
-shapes:ResultValue a sh:NodeShape ;
-    sh:targetClass sosa:Observation ;
-    rdfs:label "Valeur résultat"@fr ;
-    sh:property [
-        sh:path sosa:hasSimpleResult ;
-        sh:minCount 1 ;
-        sh:datatype xsd:decimal ;
-        sh:message "Une observation doit avoir une valeur numérique (hasSimpleResult)"@fr
-    ] .
-
-# ─────────────────────────────────────────────────────────────────────────────
-# SHAPE 3 : Plage de température [-40, 60] °C
-# ─────────────────────────────────────────────────────────────────────────────
-shapes:TemperatureRange a sh:NodeShape ;
-    sh:targetClass sosa:Observation ;
-    rdfs:label "Plage température"@fr ;
-    sh:property [
-        sh:path [ sh:alternativePath ( sosa:hasSimpleResult dq:temperature ) ] ;
-        sh:minInclusive -40.0 ;
-        sh:maxInclusive 60.0 ;
-        sh:message "Température hors plage [-40, 60] °C"@fr
-    ] .
-
-# ─────────────────────────────────────────────────────────────────────────────
-# SHAPE 4 : Plage d'humidité [0, 100] %
-# ─────────────────────────────────────────────────────────────────────────────
-shapes:HumidityRange a sh:NodeShape ;
-    sh:targetClass sosa:Observation ;
-    rdfs:label "Plage humidité"@fr ;
-    sh:property [
-        sh:path dq:humidity ;
-        sh:minInclusive 0.0 ;
-        sh:maxInclusive 100.0 ;
-        sh:message "Humidité hors plage [0, 100] %"@fr
-    ] .
-
-# ─────────────────────────────────────────────────────────────────────────────
-# SHAPE 5 : Plage d'humidité sol [0, 100] %
-# ─────────────────────────────────────────────────────────────────────────────
-shapes:MoistureRange a sh:NodeShape ;
-    sh:targetClass sosa:Observation ;
-    rdfs:label "Plage humidité sol"@fr ;
-    sh:property [
-        sh:path dq:moisture ;
-        sh:minInclusive 0.0 ;
-        sh:maxInclusive 100.0 ;
-        sh:message "Humidité sol hors plage [0, 100] %"@fr
-    ] .
-
-# ─────────────────────────────────────────────────────────────────────────────
-# SHAPE 6 : Plage de pH [0, 14]
-# ─────────────────────────────────────────────────────────────────────────────
-shapes:PHRange a sh:NodeShape ;
-    sh:targetClass sosa:Observation ;
-    rdfs:label "Plage pH"@fr ;
-    sh:property [
-        sh:path dq:ph ;
-        sh:minInclusive 0.0 ;
-        sh:maxInclusive 14.0 ;
-        sh:message "pH hors plage [0, 14]"@fr
-    ] .
-
-# ─────────────────────────────────────────────────────────────────────────────
-# SHAPE 7 : Plage d'oxygène [0, 20] mg/L
-# ─────────────────────────────────────────────────────────────────────────────
-shapes:OxygenRange a sh:NodeShape ;
-    sh:targetClass sosa:Observation ;
-    rdfs:label "Plage oxygène"@fr ;
-    sh:property [
-        sh:path dq:oxygen ;
-        sh:minInclusive 0.0 ;
-        sh:maxInclusive 20.0 ;
-        sh:message "Oxygène hors plage [0, 20] mg/L"@fr
-    ] .
-
-# ─────────────────────────────────────────────────────────────────────────────
-# SHAPE 8 : Plage d'ammoniaque [0, 10] mg/L
-# ─────────────────────────────────────────────────────────────────────────────
-shapes:AmmoniaRange a sh:NodeShape ;
-    sh:targetClass sosa:Observation ;
-    rdfs:label "Plage ammoniaque"@fr ;
-    sh:property [
-        sh:path dq:ammonia ;
-        sh:minInclusive 0.0 ;
-        sh:maxInclusive 10.0 ;
-        sh:message "Ammoniaque hors plage [0, 10] mg/L"@fr
-    ] .
-
-# ─────────────────────────────────────────────────────────────────────────────
-# SHAPE 9 : Plage de turbidité [0, 500] NTU
-# ─────────────────────────────────────────────────────────────────────────────
-shapes:TurbidityRange a sh:NodeShape ;
-    sh:targetClass sosa:Observation ;
-    rdfs:label "Plage turbidité"@fr ;
-    sh:property [
-        sh:path dq:turbidity ;
-        sh:minInclusive 0.0 ;
-        sh:maxInclusive 500.0 ;
-        sh:message "Turbidité hors plage [0, 500] NTU"@fr
-    ] .
-
-# ─────────────────────────────────────────────────────────────────────────────
-# SHAPE 10 : Type du timestamp (xsd:dateTime)
-# ─────────────────────────────────────────────────────────────────────────────
-shapes:TimestampType a sh:NodeShape ;
-    sh:targetClass sosa:Observation ;
-    rdfs:label "Type timestamp"@fr ;
-    sh:property [
-        sh:path sosa:resultTime ;
-        sh:datatype xsd:dateTime ;
-        sh:message "Le timestamp doit être de type xsd:dateTime"@fr
-    ] .
-
-# ─────────────────────────────────────────────────────────────────────────────
-# SHAPE 11 (avancé) : Timestamp non dans le futur
-# ─────────────────────────────────────────────────────────────────────────────
-shapes:TimestampNotFuture a sh:NodeShape ;
-    sh:targetClass sosa:Observation ;
-    rdfs:label "Timestamp pas dans le futur"@fr ;
-    sh:sparql [
-        sh:message "Le timestamp ne doit pas être dans le futur"@fr ;
-        sh:prefixes <http://example.org/agri#> ;
-        sh:select """
-            SELECT $this WHERE {
-                $this sosa:resultTime ?t .
-                FILTER (?t > NOW())
-            }
-        """
-    ] .
-
-# ─────────────────────────────────────────────────────────────────────────────
-# SHAPE 12 (avancé) : Cohérence spatiale (humidity ≤ 100, moisture ≤ 100)
-# ─────────────────────────────────────────────────────────────────────────────
-shapes:SpatialCoherence a sh:NodeShape ;
-    sh:targetClass sosa:Observation ;
-    rdfs:label "Cohérence spatiale"@fr ;
-    sh:property [
-        sh:path dq:humidity ;
-        sh:maxInclusive 100.0 ;
-        sh:message "Incohérence spatiale : humidité > 100%"@fr
+        sh:message "An observation must specify the observed property"@en
     ] ;
     sh:property [
-        sh:path dq:moisture ;
-        sh:maxInclusive 100.0 ;
-        sh:message "Incohérence spatiale : humidité sol > 100%"@fr
-    ] .
-
-# ─────────────────────────────────────────────────────────────────────────────
-# SHAPE 13 (avancé) : Détection capteur bloqué (stuck-at)
-# ─────────────────────────────────────────────────────────────────────────────
-shapes:StuckAtDetection a sh:NodeShape ;
-    sh:targetClass sosa:Observation ;
-    rdfs:label "Détection stuck-at"@fr ;
-    sh:property [
-        sh:path dq:stuckAt ;
-        sh:maxCount 0 ;
-        sh:message "Capteur bloqué détecté (même valeur répétée)"@fr
-    ] .
-
-# ─────────────────────────────────────────────────────────────────────────────
-# SHAPE 14 (avancé) : Cohérence croisée (ph ∈ [6.5,7.5] → oxygen > 5)
-# ─────────────────────────────────────────────────────────────────────────────
-shapes:CrossProperty a sh:NodeShape ;
-    sh:targetClass sosa:Observation ;
-    rdfs:label "Cohérence inter-propriétés"@fr ;
-    sh:sparql [
-        sh:message "pH neutre mais oxygène très faible (< 2 mg/L) — incohérence possible"@fr ;
-        sh:prefixes <http://example.org/agri#> ;
-        sh:select """
-            SELECT $this WHERE {
-                $this dq:ph ?ph ;
-                      dq:oxygen ?oxy .
-                FILTER (?ph >= 6.5 && ?ph <= 7.5 && ?oxy < 2.0)
-            }
-        """
-    ] .
-
-# ─────────────────────────────────────────────────────────────────────────────
-# SHAPE 15 (avancé) : Complétude de la provenance
-# ─────────────────────────────────────────────────────────────────────────────
-shapes:ProvenanceCompleteness a sh:NodeShape ;
-    sh:targetClass sosa:Observation ;
-    rdfs:label "Complétude provenance"@fr ;
-    sh:property [
-        sh:path dq:vendorId ;
+        sh:path sosa:hasFeatureOfInterest ;
         sh:minCount 1 ;
-        sh:datatype xsd:string ;
-        sh:message "L'observation doit avoir un identifiant vendor"@fr
+        sh:message "An observation must reference its feature of interest"@en
+    ] .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SHAPE 2 : SoilMoisture range [0, 100] %
+# ─────────────────────────────────────────────────────────────────────────────
+shapes:SoilMoistureRange a sh:NodeShape ;
+    sh:targetClass sosa:Observation ;
+    rdfs:label "SoilMoisture range [0-100%]"@en ;
+    sh:property [
+        sh:path dq:soilMoisture ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 100.0 ;
+        sh:message "Soil moisture out of range [0, 100] %"@en
+    ] .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SHAPE 3 : AirTemperature range [-40, 60] °C
+# ─────────────────────────────────────────────────────────────────────────────
+shapes:AirTemperatureRange a sh:NodeShape ;
+    sh:targetClass sosa:Observation ;
+    rdfs:label "AirTemperature range [-40, 60°C]"@en ;
+    sh:property [
+        sh:path dq:airTemperature ;
+        sh:minInclusive -40.0 ;
+        sh:maxInclusive 60.0 ;
+        sh:message "Air temperature out of range [-40, 60] °C"@en
+    ] .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SHAPE 4 : SoilTemperature range [-10, 60] °C
+# ─────────────────────────────────────────────────────────────────────────────
+shapes:SoilTemperatureRange a sh:NodeShape ;
+    sh:targetClass sosa:Observation ;
+    rdfs:label "SoilTemperature range [-10, 60°C]"@en ;
+    sh:property [
+        sh:path dq:soilTemperature ;
+        sh:minInclusive -10.0 ;
+        sh:maxInclusive 60.0 ;
+        sh:message "Soil temperature out of range [-10, 60] °C"@en
+    ] .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SHAPE 5 : SoilPH range [0, 14]
+# ─────────────────────────────────────────────────────────────────────────────
+shapes:SoilPHRange a sh:NodeShape ;
+    sh:targetClass sosa:Observation ;
+    rdfs:label "SoilPH range [0-14]"@en ;
+    sh:property [
+        sh:path dq:soilPH ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 14.0 ;
+        sh:message "Soil pH out of range [0, 14]"@en
+    ] .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SHAPE 6 : Illuminance range [0, 200000] lux
+# ─────────────────────────────────────────────────────────────────────────────
+shapes:IlluminanceRange a sh:NodeShape ;
+    sh:targetClass sosa:Observation ;
+    rdfs:label "Illuminance range [0-200000 lux]"@en ;
+    sh:property [
+        sh:path dq:illuminance ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 200000.0 ;
+        sh:message "Illuminance out of range [0, 200000] lux"@en
+    ] .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SHAPE 7 : IrrigationState [0, 1] binary
+# ─────────────────────────────────────────────────────────────────────────────
+shapes:IrrigationStateRange a sh:NodeShape ;
+    sh:targetClass sosa:Observation ;
+    rdfs:label "IrrigationState binary [0/1]"@en ;
+    sh:property [
+        sh:path dq:irrigationState ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Irrigation state must be 0 or 1"@en
+    ] .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SHAPE 8 : FertilizationDose range [0, 500] kg/ha
+# ─────────────────────────────────────────────────────────────────────────────
+shapes:FertilizationDoseRange a sh:NodeShape ;
+    sh:targetClass sosa:Observation ;
+    rdfs:label "FertilizationDose range [0-500 kg/ha]"@en ;
+    sh:property [
+        sh:path dq:fertilizationDose ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 500.0 ;
+        sh:message "Fertilization dose out of range [0, 500] kg/ha"@en
+    ] .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SHAPE 9 : BatteryLevel range [0, 100] %
+# ─────────────────────────────────────────────────────────────────────────────
+shapes:BatteryLevelRange a sh:NodeShape ;
+    sh:targetClass sosa:Observation ;
+    rdfs:label "BatteryLevel range [0-100%]"@en ;
+    sh:property [
+        sh:path dq:batteryLevel ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 100.0 ;
+        sh:message "Battery level out of range [0, 100] %"@en
+    ] .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SHAPE 10 : QualityScore range [0, 1]
+# ─────────────────────────────────────────────────────────────────────────────
+shapes:QualityScoreRange a sh:NodeShape ;
+    sh:targetClass sosa:Observation ;
+    rdfs:label "QualityScore range [0-1]"@en ;
+    sh:property [
+        sh:path dq:qualityScore ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Quality score must be in [0, 1]"@en
     ] .

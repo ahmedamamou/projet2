@@ -1,0 +1,13 @@
+PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX sosa: <http://www.w3.org/ns/sosa/>
+PREFIX dq:   <http://example.org/dq#>
+
+SELECT ?plot ?obs ?ts ?moisture ?quality WHERE {
+    ?obs rdf:type sosa:Observation ;
+         sosa:hasFeatureOfInterest ?plot ;
+         sosa:resultTime ?ts ;
+         dq:soilMoisture ?moisture .
+    OPTIONAL { ?obs dq:qualityScore ?quality }
+    FILTER (?moisture < 20.0)
+}
+ORDER BY ASC(?moisture)

@@ -1,0 +1,90 @@
+@prefix sh:    <http://www.w3.org/ns/shacl#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix sosa:  <http://www.w3.org/ns/sosa/> .
+@prefix dq:    <http://example.org/dq#> .
+@prefix agri:  <http://example.org/agri#> .
+@prefix shapes: <http://example.org/shapes#> .
+
+# =============================================================================
+# SHACL Advanced Shapes — 5 contraintes avancées (Shapes 11-15)
+# =============================================================================
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SHAPE 11 : Timestamp not in future (SPARQL-based)
+# ─────────────────────────────────────────────────────────────────────────────
+shapes:TimestampNotFuture a sh:NodeShape ;
+    sh:targetClass sosa:Observation ;
+    rdfs:label "Timestamp not in future"@en ;
+    sh:sparql [
+        sh:message "Timestamp must not be in the future"@en ;
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "sosa" ;
+                sh:namespace "http://www.w3.org/ns/sosa/"^^xsd:anyURI
+            ]
+        ] ;
+        sh:select """
+            SELECT $this WHERE {
+                $this sosa:resultTime ?t .
+                FILTER (?t > NOW())
+            }
+        """
+    ] .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SHAPE 12 : Spatial coherence — values within 30% for same plot/property/5min
+# Implemented as max bounds check (full cross-observation check done in Python)
+# ─────────────────────────────────────────────────────────────────────────────
+shapes:SpatialCoherence a sh:NodeShape ;
+    sh:targetClass sosa:Observation ;
+    rdfs:label "Spatial coherence"@en ;
+    sh:property [
+        sh:path dq:soilMoisture ;
+        sh:maxInclusive 100.0 ;
+        sh:message "Spatial coherence: soil moisture > 100%"@en
+    ] ;
+    sh:property [
+        sh:path dq:airTemperature ;
+        sh:maxInclusive 60.0 ;
+        sh:message "Spatial coherence: air temperature > 60°C"@en
+    ] .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SHAPE 13 : Stuck-at detection — flag if stuckAt property present
+# ─────────────────────────────────────────────────────────────────────────────
+shapes:StuckAtDetection a sh:NodeShape ;
+    sh:targetClass sosa:Observation ;
+    rdfs:label "Stuck-at detection"@en ;
+    sh:property [
+        sh:path dq:stuckAt ;
+        sh:maxCount 0 ;
+        sh:message "Stuck-at sensor detected (same value repeated 5+ times)"@en
+    ] .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SHAPE 14 : Minimum reporting frequency — at least 1 obs per 30 min
+# Flagged via dq:missedReport property set by Python pre-processing
+# ─────────────────────────────────────────────────────────────────────────────
+shapes:MinReportingFrequency a sh:NodeShape ;
+    sh:targetClass sosa:Observation ;
+    rdfs:label "Minimum reporting frequency"@en ;
+    sh:property [
+        sh:path dq:missedReport ;
+        sh:maxCount 0 ;
+        sh:message "Sensor missed reporting frequency (> 30 min gap)"@en
+    ] .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SHAPE 15 : Seasonal plausibility — winter soil moisture < 10% is suspect
+# Flagged via dq:seasonalAnomaly property set by Python pre-processing
+# ─────────────────────────────────────────────────────────────────────────────
+shapes:SeasonalPlausibility a sh:NodeShape ;
+    sh:targetClass sosa:Observation ;
+    rdfs:label "Seasonal plausibility"@en ;
+    sh:property [
+        sh:path dq:seasonalAnomaly ;
+        sh:maxCount 0 ;
+        sh:message "Seasonal plausibility: winter soil moisture < 10% is suspect"@en
+    ] .
