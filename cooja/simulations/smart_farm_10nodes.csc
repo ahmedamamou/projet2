@@ -7,7 +7,7 @@
   <project EXPORT="discard">[APPS_DIR]/collect-view</project>
   <project EXPORT="discard">[APPS_DIR]/powertracker</project>
   <simulation>
-    <title>AgriSem Smart Farming Simulation</title>
+    <title>AgriSem Smart Farming - 10 Nodes</title>
     <randomseed>123456</randomseed>
     <motedelay_us>1000000</motedelay_us>
     <radiomedium>
@@ -70,8 +70,8 @@
       <breakpoints />
       <interface_config>
         se.sics.cooja.interfaces.Position
-        <x>32.22962860125714</x>
-        <y>56.597551207471035</y>
+        <x>60.0</x>
+        <y>15.0</y>
         <z>0.0</z>
       </interface_config>
       <interface_config>
@@ -84,8 +84,8 @@
       <breakpoints />
       <interface_config>
         se.sics.cooja.interfaces.Position
-        <x>16.468405478619047</x>
-        <y>59.399546429273364</y>
+        <x>0.0</x>
+        <y>0.0</y>
         <z>0.0</z>
       </interface_config>
       <interface_config>
@@ -98,8 +98,8 @@
       <breakpoints />
       <interface_config>
         se.sics.cooja.interfaces.Position
-        <x>51.84359515387344</x>
-        <y>53.44530658294343</y>
+        <x>30.0</x>
+        <y>0.0</y>
         <z>0.0</z>
       </interface_config>
       <interface_config>
@@ -112,8 +112,8 @@
       <breakpoints />
       <interface_config>
         se.sics.cooja.interfaces.Position
-        <x>38.88436725303767</x>
-        <y>41.53682689028353</y>
+        <x>60.0</x>
+        <y>0.0</y>
         <z>0.0</z>
       </interface_config>
       <interface_config>
@@ -126,8 +126,8 @@
       <breakpoints />
       <interface_config>
         se.sics.cooja.interfaces.Position
-        <x>37.4833696421365</x>
-        <y>71.30802612193325</y>
+        <x>90.0</x>
+        <y>0.0</y>
         <z>0.0</z>
       </interface_config>
       <interface_config>
@@ -140,13 +140,83 @@
       <breakpoints />
       <interface_config>
         se.sics.cooja.interfaces.Position
-        <x>26.62563815765248</x>
-        <y>39.78557987665708</y>
+        <x>120.0</x>
+        <y>0.0</y>
         <z>0.0</z>
       </interface_config>
       <interface_config>
         se.sics.cooja.mspmote.interfaces.MspMoteID
         <id>6</id>
+      </interface_config>
+      <motetype_identifier>sky2</motetype_identifier>
+    </mote>
+    <mote>
+      <breakpoints />
+      <interface_config>
+        se.sics.cooja.interfaces.Position
+        <x>0.0</x>
+        <y>30.0</y>
+        <z>0.0</z>
+      </interface_config>
+      <interface_config>
+        se.sics.cooja.mspmote.interfaces.MspMoteID
+        <id>7</id>
+      </interface_config>
+      <motetype_identifier>sky2</motetype_identifier>
+    </mote>
+    <mote>
+      <breakpoints />
+      <interface_config>
+        se.sics.cooja.interfaces.Position
+        <x>30.0</x>
+        <y>30.0</y>
+        <z>0.0</z>
+      </interface_config>
+      <interface_config>
+        se.sics.cooja.mspmote.interfaces.MspMoteID
+        <id>8</id>
+      </interface_config>
+      <motetype_identifier>sky2</motetype_identifier>
+    </mote>
+    <mote>
+      <breakpoints />
+      <interface_config>
+        se.sics.cooja.interfaces.Position
+        <x>60.0</x>
+        <y>30.0</y>
+        <z>0.0</z>
+      </interface_config>
+      <interface_config>
+        se.sics.cooja.mspmote.interfaces.MspMoteID
+        <id>9</id>
+      </interface_config>
+      <motetype_identifier>sky2</motetype_identifier>
+    </mote>
+    <mote>
+      <breakpoints />
+      <interface_config>
+        se.sics.cooja.interfaces.Position
+        <x>90.0</x>
+        <y>30.0</y>
+        <z>0.0</z>
+      </interface_config>
+      <interface_config>
+        se.sics.cooja.mspmote.interfaces.MspMoteID
+        <id>10</id>
+      </interface_config>
+      <motetype_identifier>sky2</motetype_identifier>
+    </mote>
+    <mote>
+      <breakpoints />
+      <interface_config>
+        se.sics.cooja.interfaces.Position
+        <x>120.0</x>
+        <y>30.0</y>
+        <z>0.0</z>
+      </interface_config>
+      <interface_config>
+        se.sics.cooja.mspmote.interfaces.MspMoteID
+        <id>11</id>
       </interface_config>
       <motetype_identifier>sky2</motetype_identifier>
     </mote>
@@ -167,7 +237,7 @@
       <skin>se.sics.cooja.plugins.skins.GridVisualizerSkin</skin>
       <skin>se.sics.cooja.plugins.skins.TrafficVisualizerSkin</skin>
       <skin>se.sics.cooja.plugins.skins.UDGMVisualizerSkin</skin>
-      <viewport>2.855108366264151 0.0 0.0 2.855108366264151 98.98091773896438 33.407858037485745</viewport>
+      <viewport>2.5 0.0 0.0 2.5 50.0 50.0</viewport>
     </plugin_config>
     <width>400</width>
     <z>0</z>
@@ -197,6 +267,11 @@
       <mote>3</mote>
       <mote>4</mote>
       <mote>5</mote>
+      <mote>6</mote>
+      <mote>7</mote>
+      <mote>8</mote>
+      <mote>9</mote>
+      <mote>10</mote>
       <showRadioRXTX />
       <showRadioHW />
       <showLEDs />
@@ -209,17 +284,11 @@
     <location_y>625</location_y>
   </plugin>
   <plugin>
-    se.sics.cooja.plugins.Notes
-    <plugin_config>
-      <notes>AgriSem Smart Farming - IoT Simulation
-1 Border Router (sky1) + 5 Sensor Motes (sky2)
-Sensors: pH, Temperature, Turbidity, Ammonia, Oxygen, Moisture, Humidity</notes>
-      <decorations>true</decorations>
-    </plugin_config>
-    <width>766</width>
+    se.sics.cooja.plugins.PowerTracker
+    <width>600</width>
     <z>1</z>
-    <height>160</height>
-    <location_x>680</location_x>
-    <location_y>0</location_y>
+    <height>300</height>
+    <location_x>400</location_x>
+    <location_y>400</location_y>
   </plugin>
 </simconf>
